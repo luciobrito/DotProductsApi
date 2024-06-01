@@ -3,6 +3,10 @@ using DotProducts.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
+using System.IO;
+using System.Runtime.CompilerServices;
+using DotProducts.Services;
 
 namespace DotProducts.Controllers;
 
@@ -11,9 +15,10 @@ namespace DotProducts.Controllers;
 public class UsuariosController : ControllerBase
 {
     private readonly AppDbContext db;
+
     public UsuariosController(AppDbContext appDbContext){
         db = appDbContext;
-
+  
     }
     [HttpPost]
     public ActionResult Register(Usuario usuario){
@@ -22,11 +27,13 @@ public class UsuariosController : ControllerBase
         db.SaveChanges();
         return Created();
     }
+
     [HttpGet("/mydata")]
     [Authorize]
-    public ActionResult MyData(){
-        var userId = User.Claims.Where(x => x.Type == ClaimTypes.Name).FirstOrDefault()?.Value;
-        var userData = db.Usuarios.Find(Int32.Parse(userId));
-        return Ok(userData);
+    public String MyData(){
+        //var userId = User.Claims.Where(x => x.Type == ClaimTypes.Name).FirstOrDefault()?.Value;
+        string id = User.UserId();
+        Usuario usuario = db.Usuarios.Find(Int32.Parse(id));
+        return usuario.Email;
     }
 }

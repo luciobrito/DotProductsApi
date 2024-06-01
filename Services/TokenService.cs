@@ -18,7 +18,7 @@ public static class TokenService
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(new Claim[]{
-                new Claim(ClaimTypes.Name, usuario.Id.ToString()),
+                new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
                 new Claim("role", usuario.Role.ToString()),
             }),
             Expires = DateTime.UtcNow.AddHours(2),

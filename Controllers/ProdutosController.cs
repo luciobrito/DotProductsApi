@@ -8,8 +8,10 @@ namespace DotProducts.Controllers;
 [Route("products")]
 public class ProdutosController : ControllerBase {
     private readonly AppDbContext db;
-    public ProdutosController(AppDbContext dbContext){
+    public static IWebHostEnvironment environment;
+    public ProdutosController(AppDbContext dbContext, IWebHostEnvironment _environment){
         db = dbContext;
+        environment = _environment;
     }
     [HttpGet]
     public ActionResult GetAll(){
@@ -35,5 +37,36 @@ public class ProdutosController : ControllerBase {
         db.SaveChanges();
         return Ok();
     }
+    [HttpPost("imagem")]
+    public async Task<string> UploadImage([FromForm] IFormFile arquivo){
+        
+            try{
+                if(!Directory.Exists(environment.ContentRootPath + @"\imagens\")) 
+                    Directory.CreateDirectory(environment.ContentRootPath + @"\imagens\");
+                using(FileStream fileStream = 
+                System.IO.File.Create(
+                    environment.ContentRootPath + 
+                    @"\imagens\" + 
+                    Guid.NewGuid().ToString() +
+                    System.IO.Path.GetExtension(arquivo.FileName)
+                    ))
+                {
+                    await arquivo.CopyToAsync(fileStream);
+                    fileStream.Flush();
+                    return System.IO.Path.GetExtension(arquivo.FileName);
+                }
+            }
+            catch(Exception exception){
+                return exception.ToString();
+            }
+        
+       
 
+    }
+    [HttpGet("imagem/{nomeArquivo}")]
+    public PhysicalFileResult ImagemProduto(string nomeArquivo)
+    {
+        var filepath = Path.Combine(environment.ContentRootPath, "imagens", nomeArquivo);
+        return PhysicalFile(filepath, "image/jpg");
+    }
 }
