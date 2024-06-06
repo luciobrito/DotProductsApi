@@ -45,6 +45,7 @@ public class ProdutosController : ControllerBase
         db.SaveChanges();
         return Ok();
     }
+ [ApiExplorerSettings(IgnoreApi = true)]
     public string UploadProductImage(IFormFile arquivo)
     {
         //Diretório onde ficarão armazenadas as imagens
@@ -73,4 +74,5 @@ public class ProdutosController : ControllerBase
         var filepath = Path.Combine(environment.ContentRootPath, @"imagens\produtos", nomeArquivo);
         return PhysicalFile(filepath, "image/jpg");
     }
+    
 }

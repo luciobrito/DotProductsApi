@@ -4,9 +4,9 @@ namespace DotProducts.Services
 {
     public static class AuthService
     {
-        public static string UserId(this ClaimsPrincipal claims){
+        public static int UserId(this ClaimsPrincipal claims){
             if(claims == null) throw new ArgumentNullException(nameof(claims));
-            return claims.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return Int32.Parse(claims.FindFirst(ClaimTypes.NameIdentifier)?.Value);
         }
     }
 }

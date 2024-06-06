@@ -2,11 +2,11 @@ using static BCrypt.Net.BCrypt;
 using DotProducts.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
-using System.IdentityModel.Tokens.Jwt;
-using System.IO;
-using System.Runtime.CompilerServices;
 using DotProducts.Services;
+using DotProducts.Dtos;
+using System.Text.Json.Nodes;
+using Microsoft.IdentityModel.Tokens;
+using System.Text.Json;
 
 namespace DotProducts.Controllers;
 
@@ -15,7 +15,6 @@ namespace DotProducts.Controllers;
 public class UsuariosController : ControllerBase
 {
     private readonly AppDbContext db;
-
     public UsuariosController(AppDbContext appDbContext){
         db = appDbContext;
   
@@ -32,8 +31,40 @@ public class UsuariosController : ControllerBase
     [Authorize]
     public String MyData(){
         //var userId = User.Claims.Where(x => x.Type == ClaimTypes.Name).FirstOrDefault()?.Value;
-        string id = User.UserId();
-        Usuario usuario = db.Usuarios.Find(Int32.Parse(id));
+        int id = User.UserId();
+        Usuario usuario = db.Usuarios.Find(id);
         return usuario.Email;
+    }
+    [HttpPatch("name")]
+    [Authorize]
+    /*Por algum motivo, as strings não são aceitas como Json no body
+    então tive que usar um objeto json e pegar o valor pelo index. ObjetoJson["valor"]
+    */ 
+    public ActionResult UpdateName(JsonObject nome ){
+       string novoNome = nome["nome"].ToString();
+       if(novoNome is null || novoNome == string.Empty) return StatusCode(400, "Valor 'nome' é obrigatório"); 
+        else {
+            int AuthId = User.UserId();
+            Usuario usuario = db.Usuarios.Find(AuthId);
+            usuario.Nome = novoNome;
+            db.SaveChanges();
+            return Created("", new {message = "Nome atualizado com sucesso!"});
+        }
+    }
+    [HttpPatch("password")]
+    [Authorize]
+    public ActionResult UpdateSenha(UpdatePasswordDto passwordDto){
+        int AuthId = User.UserId();
+        //string currentPassword = db.Usuarios.Where(x => x.Id == id).Select(x => x.Senha).FirstOrDefault();     
+        Usuario usuario = db.Usuarios.Find(AuthId);
+        //Comparar a senha que o usuário enviou com a Hash salva no banco.
+        bool verifyPassword = Verify(passwordDto.oldPassword, usuario.Senha);
+        if(verifyPassword)
+        {
+            usuario.Senha = HashPassword(passwordDto.newPassword);
+            db.SaveChanges();
+            return Created("", new {message = "Sua senha foi atualizada com sucesso!"});
+        }
+        return StatusCode(400, "Senha antiga está errada!");
     }
 }
