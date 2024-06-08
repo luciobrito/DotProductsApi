@@ -41,6 +41,9 @@ builder.Services.AddAuthentication(x =>
         ValidateAudience = false
     };
 });
+builder.Services.AddAuthorization(options => {
+    options.AddPolicy("Admin", policy => policy.RequireClaim("Admin"));
+});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

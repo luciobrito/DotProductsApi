@@ -1,6 +1,7 @@
 
 using DotProducts.Dtos;
 using DotProducts.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DotProducts.Controllers;
@@ -29,6 +30,7 @@ public class ProdutosController : ControllerBase
         return Ok(produto);
     }
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public ActionResult PostProduto([FromForm]Produto produto, [FromForm] IFormFile imagem)
     {
         string imageName = UploadProductImage(imagem);
@@ -38,6 +40,7 @@ public class ProdutosController : ControllerBase
         return Created("", new { message = "Produto registrado com sucesso!" });
     }
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")]
     public ActionResult Delete(int id)
     {
         var produto = db.Produtos.Find(id);
@@ -47,6 +50,7 @@ public class ProdutosController : ControllerBase
         return Ok();
     }
     [HttpPatch("update/{id}")]
+    [Authorize(Roles = "Admin")]
     public Produto UpdateProduto([FromBody]UpdateProdutoDto produtoBody, int id){
         Produto produto = db.Produtos.Find(id);
         if(produtoBody.Descricao != string.Empty) produto.Descricao = produtoBody.Descricao;
