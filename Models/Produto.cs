@@ -13,6 +13,4 @@ public class Produto{
     public string? Image {get; set;}
     [JsonIgnore]
     public ICollection<Produto_Views> Produto_Views {get;} = new List<Produto_Views>();
-    [Timestamp]
-    public DateTime Timestamp {get; set;}
 }

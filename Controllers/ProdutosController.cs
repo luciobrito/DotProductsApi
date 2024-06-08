@@ -1,4 +1,5 @@
 
+using DotProducts.Dtos;
 using DotProducts.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,7 +22,7 @@ public class ProdutosController : ControllerBase
         var produtos = db.Produtos.ToList();
         return Ok(produtos);
     }
-    [HttpGet(":id")]
+    [HttpGet("{id}")]
     public ActionResult GetById(int id)
     {
         var produto = db.Produtos.Find(id);
@@ -36,15 +37,25 @@ public class ProdutosController : ControllerBase
         db.SaveChanges();
         return Created("", new { message = "Produto registrado com sucesso!" });
     }
-    [HttpDelete]
+    [HttpDelete("{id}")]
     public ActionResult Delete(int id)
     {
         var produto = db.Produtos.Find(id);
-        if (produto == null) return NotFound();
+        if (produto == null) return NotFound("Produto não encontrado");
         db.Produtos.Remove(produto);
         db.SaveChanges();
         return Ok();
     }
+    [HttpPatch("update/{id}")]
+    public Produto UpdateProduto([FromBody]UpdateProdutoDto produtoBody, int id){
+        Produto produto = db.Produtos.Find(id);
+        if(produtoBody.Descricao != string.Empty) produto.Descricao = produtoBody.Descricao;
+        if(produtoBody.Nome != string.Empty) produto.Nome = produtoBody.Nome;
+        if(produtoBody.Preco != 0 )produto.Preco = produtoBody.Preco;
+         db.SaveChanges();
+        return produto;
+    }
+
  [ApiExplorerSettings(IgnoreApi = true)]
     public string UploadProductImage(IFormFile arquivo)
     {
