@@ -10,8 +10,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DotProducts.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240603215329_ProdutoUpdate")]
-    partial class ProdutoUpdate
+    [Migration("20240610180637_InitialCreation")]
+    partial class InitialCreation
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -36,7 +36,6 @@ namespace DotProducts.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Image")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Nome")
@@ -66,7 +65,12 @@ namespace DotProducts.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("ProdutoId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("ProdutoId");
 
                     b.ToTable("produto_Views");
                 });
@@ -87,13 +91,46 @@ namespace DotProducts.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Senha")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Email")
+                        .IsUnique();
+
                     b.ToTable("Usuarios");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Email = "admin@email.com",
+                            Nome = "Admin",
+                            Role = "Admin",
+                            Senha = "$2a$12$xgKYROqH9MPTbrCgPfbQ7.i6FvZBWMKGvoRUPkAD2wipR50X3jm5q"
+                        });
+                });
+
+            modelBuilder.Entity("DotProducts.Models.Produto_Views", b =>
+                {
+                    b.HasOne("DotProducts.Models.Produto", "Produto")
+                        .WithMany("Produto_Views")
+                        .HasForeignKey("ProdutoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Produto");
+                });
+
+            modelBuilder.Entity("DotProducts.Models.Produto", b =>
+                {
+                    b.Navigation("Produto_Views");
                 });
 #pragma warning restore 612, 618
         }

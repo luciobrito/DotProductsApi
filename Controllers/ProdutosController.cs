@@ -63,17 +63,18 @@ public class ProdutosController : ControllerBase
  [ApiExplorerSettings(IgnoreApi = true)]
     public string UploadProductImage(IFormFile arquivo)
     {
+        if(arquivo.Length > 0){
         //Diretório onde ficarão armazenadas as imagens
-        string image_dir = environment.ContentRootPath + @"\imagens\produtos\";
+        string image_dir = Path.Combine(environment.ContentRootPath, "imagens", "produtos");
         try
         {
             //Cria o diretório se não existir
             if (!Directory.Exists(image_dir)) Directory.CreateDirectory(image_dir);
             //Nome do arquivo é uma Guid + extensão original do arquivo
             string newFileName =  Guid.NewGuid().ToString() + System.IO.Path.GetExtension(arquivo.FileName);
-            using (FileStream fileStream = System.IO.File.Create(image_dir + newFileName))
+            using (FileStream fileStream = System.IO.File.Create(Path.Combine(image_dir, newFileName)))
             {
-                arquivo.CopyToAsync(fileStream);
+                arquivo.CopyTo(fileStream);
                 fileStream.Flush();
                 return newFileName;
             }
@@ -81,12 +82,13 @@ public class ProdutosController : ControllerBase
         catch (Exception exception)
         {
             return exception.ToString();
-        }
+        }}
+        else return "Arquivo vazio.";
     }
     [HttpGet("imagem/{nomeArquivo}")]
     public PhysicalFileResult ImagemProduto(string nomeArquivo)
     {
-        var filepath = Path.Combine(environment.ContentRootPath, @"imagens\produtos", nomeArquivo);
+        var filepath = Path.Combine(environment.ContentRootPath, "imagens", "produtos", nomeArquivo);
         return PhysicalFile(filepath, "image/jpg");
     }
     

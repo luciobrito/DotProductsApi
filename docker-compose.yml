@@ -1,0 +1,27 @@
+version: "3"
+services:
+    database:
+        image: postgres:alpine
+        environment:
+            POSTGRES_PASSWORD: "1234"
+            POSTGRES_USER: "postgres"
+            POSTGRES_DB: "dotproducts"
+        ports:
+            - "5432:5432"
+        volumes:
+            - dotproducts:/var/lib/postgresql/data
+        networks:
+            - dotproducts_default
+    api:
+        build: .
+        ports:
+            - "8080:8080"
+        depends_on:
+            - database
+        networks:
+            - dotproducts_default
+volumes:
+    dotproducts:
+        external: false
+networks:
+    dotproducts_default: {}
